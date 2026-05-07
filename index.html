@@ -144,10 +144,20 @@ Escala de Imagem — HC-UFPE
 
 <h2>Registro diário</h2>
 
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+
+<button type="button" onclick="alterarDia(-1)">◀</button>
+
 <label>
 Data:
-<input type="date" id="data">
+<input type="date" id="data" onchange="atualizarDiaSemana()">
 </label>
+
+<button type="button" onclick="alterarDia(1)">▶</button>
+
+<div id="diaSemana" style="font-weight:600;color:#1F4E79;"></div>
+
+</div>
 
 <div class="grid">
 
@@ -203,6 +213,7 @@ Data:
 <th>Data</th>
 <th>Procedimentos realizados</th>
 <th>Observação</th>
+<th>Ações</th>
 </tr>
 </thead>
 <tbody id="tabela"></tbody>
@@ -217,6 +228,42 @@ const STORAGE_KEY = 'escala_hcufpe';
 
 const hoje = new Date().toISOString().split('T')[0];
 document.getElementById('data').value = hoje;
+
+atualizarDiaSemana();
+
+function atualizarDiaSemana(){
+
+  const input = document.getElementById('data').value;
+
+  if(!input) return;
+
+  const data = new Date(input + 'T00:00:00');
+
+  const dias = [
+    'Domingo',
+    'Segunda-feira',
+    'Terça-feira',
+    'Quarta-feira',
+    'Quinta-feira',
+    'Sexta-feira',
+    'Sábado'
+  ];
+
+  document.getElementById('diaSemana').innerText = dias[data.getDay()];
+}
+
+function alterarDia(valor){
+
+  const campo = document.getElementById('data');
+
+  const data = new Date(campo.value + 'T00:00:00');
+
+  data.setDate(data.getDate() + valor);
+
+  campo.value = data.toISOString().split('T')[0];
+
+  atualizarDiaSemana();
+}
 
 function obterDados(){
   return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
@@ -264,7 +311,8 @@ function salvarDados(){
 
 function carregarTabela(){
 
-  const dados = obterDados();
+  const dados = obterDados()
+.sort((a,b)=> new Date(b.data) - new Date(a.data));
 
   const tabela = document.getElementById('tabela');
 
@@ -371,4 +419,3 @@ carregarTabela();
 </body>
 </html>
 ```
-
